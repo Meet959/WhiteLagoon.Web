@@ -35,6 +35,7 @@ namespace WhiteLagoon.Web.Controllers
                 villa.Created_Date = DateTime.Now;
                 _context.Villas.Add(villa);
                 _context.SaveChanges();
+                TempData["Success"] = "The villa has been created successfully.";
                 return RedirectToAction("Index");
             }
             return View();
@@ -45,7 +46,7 @@ namespace WhiteLagoon.Web.Controllers
             Villa? villa = _context.Villas.FirstOrDefault(x => x.Id == villaId);
             if(villa is null)
             {
-                return NotFound();
+                return RedirectToAction("Error","Home");
             }
             return View(villa);
         }
@@ -70,8 +71,9 @@ namespace WhiteLagoon.Web.Controllers
                     existVilla.Updated_Date = DateTime.Now;
                     _context.Villas.Update(existVilla);
                     _context.SaveChanges();
+                    TempData["Success"] = "The villa has been updated successfully.";
+                    return RedirectToAction("Index");
                 }
-                return RedirectToAction("Index");
             }
             return View(villa);
         }
@@ -81,7 +83,7 @@ namespace WhiteLagoon.Web.Controllers
             Villa? villa = _context.Villas.FirstOrDefault(x => x.Id == villaId);
             if (villa is null)
             {
-                return NotFound();
+                return RedirectToAction("Error", "Home");
             } 
             return View(villa);
         }
@@ -94,8 +96,10 @@ namespace WhiteLagoon.Web.Controllers
             {
                 _context.Villas.Remove(existVilla);
                 _context.SaveChanges();
+                TempData["Success"] = "The villa has been deleted successfully.";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
+            return View();
         }
     }
 }
