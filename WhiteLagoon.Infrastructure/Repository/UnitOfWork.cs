@@ -14,6 +14,8 @@ namespace WhiteLagoon.Infrastructure.Repository
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
+            Villas = new VillaRepository(_db);
+            VillaNumbers = new VillaNumberRepository(_db);
         }
 
         public void Save()

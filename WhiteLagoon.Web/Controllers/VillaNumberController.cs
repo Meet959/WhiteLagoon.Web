@@ -9,9 +9,9 @@ namespace WhiteLagoon.Web.Controllers
 {
     public class VillaNumberController : Controller
     {
-        private UnitOfWork _unitOfWork;
+        private IUnitOfWork _unitOfWork;
 
-        public VillaNumberController(UnitOfWork context)
+        public VillaNumberController(IUnitOfWork context)
         {
             _unitOfWork = context;
         }

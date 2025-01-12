@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Metrics;
+using WhiteLagoon.Application.Common.Interfaces;
 using WhiteLagoon.Domain.Entities;
 using WhiteLagoon.Infrastructure.Repository;
 
@@ -6,11 +8,12 @@ namespace WhiteLagoon.Web.Controllers
 {
     public class VillaController : Controller
     {
-        private UnitOfWork _unitOfWork;
-
-        public VillaController(UnitOfWork unitOfWork)
+        private IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public VillaController(IUnitOfWork unitOfWork,IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -32,6 +35,20 @@ namespace WhiteLagoon.Web.Controllers
             }
             if (ModelState.IsValid)
             {
+                if (villa.Image != null)
+                {
+                    string FileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                    string imageFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImages");
+
+                    using var fileStream = new FileStream(Path.Combine(imageFolderPath, FileName), FileMode.Create);
+                    villa.Image.CopyTo(fileStream);
+                    villa.ImageUrl = @"\images\VillaImages\"+FileName;
+                }
+                else
+                {
+                    villa.ImageUrl = "https://placehold.co/600x400";
+                }
+
                 villa.Created_Date = DateTime.Now;
                 _unitOfWork.Villas.Add(villa);
                 _unitOfWork.Save();
@@ -60,6 +77,26 @@ namespace WhiteLagoon.Web.Controllers
             }
             if (ModelState.IsValid && villa.Id > 0)
             {
+                if (villa.Image != null)
+                {
+                    string FileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                    string imageFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImages");
+
+                    if (!string.IsNullOrEmpty(villa.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, villa.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    using var fileStream = new FileStream(Path.Combine(imageFolderPath, FileName), FileMode.Create);
+                    villa.Image.CopyTo(fileStream);
+                    villa.ImageUrl = @"\images\VillaImages\" + FileName;
+                }
+
                 var existVilla = _unitOfWork.Villas.Get(x => x.Id == villa.Id);
                 if (existVilla is not null)
                 {
@@ -67,6 +104,7 @@ namespace WhiteLagoon.Web.Controllers
                     existVilla.Description = villa.Description;
                     existVilla.Price = villa.Price;
                     existVilla.Occupancy = villa.Occupancy;
+                    existVilla.ImageUrl = villa.ImageUrl;
                     existVilla.Sqft = villa.Sqft;
                     existVilla.Updated_Date = DateTime.Now;
                     _unitOfWork.Villas.Update(existVilla);
@@ -91,7 +129,7 @@ namespace WhiteLagoon.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa villa)
         {
-            Villa existVilla = _unitOfWork.Villas.Get(x => x.Id == villa.Id);
+            Villa? existVilla = _unitOfWork.Villas.Get(x => x.Id == villa.Id);
             if (existVilla is not null)
             {
                 _unitOfWork.Villas.Remove(existVilla);

@@ -22,14 +22,15 @@ namespace WhiteLagoon.Infrastructure.Repository
         public T Get(Expression<Func<T, bool>> filter = null, string? IncludeProperties = null)
         {
             IQueryable<T> query = dbset;
-            if (filter != null) {
-                query.Where(filter);
+            if (filter != null) 
+            {
+                 query = query.Where(filter);
             }
             if (!string.IsNullOrEmpty(IncludeProperties))
             {
-                foreach (var property in IncludeProperties.Split(new char[] { },StringSplitOptions.RemoveEmptyEntries))
+                foreach (var property in IncludeProperties.Split(new char[] { ',' },StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query.Include(property);
+                    query = query.Include(property);
                 }
             }
             return query.FirstOrDefault();
@@ -40,13 +41,13 @@ namespace WhiteLagoon.Infrastructure.Repository
             IQueryable<T> query = dbset;
             if (filter != null)
             {
-                query.Where(filter);
+                query = query.Where(filter);
             }
             if (!string.IsNullOrEmpty(includeProperties))
             {
-                foreach (var property in includeProperties.Split(new char[] { }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query.Include(property);
+                    query = query.Include(property);
                 }
             }
             return query.ToList();
@@ -54,7 +55,7 @@ namespace WhiteLagoon.Infrastructure.Repository
 
         public void Remove(T Entity)
         {
-            dbset.Add(Entity);
+            dbset.Remove(Entity);
         }
     }
 }
