@@ -24,7 +24,7 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-    <form method="post">
+    <form method="post"
           asp-action="GetVillasByDate">
         <div class="row p-0 mx-0 py-4">
 
@@ -62,8 +62,9 @@
 </div>
 
 @section scripts {
-    <script>
+    <script type="text/javascript">
         function fnLoadVillaList() {
+            debugger
             $('.spinner').show();
             var objData = {
                 checkInDate: $("#CheckInDate").val(),
@@ -75,6 +76,7 @@
                 data: objData,
                 url: "@Url.Action("GetVillasByDate", "Home")",
                 success: function (data) {
+                    debugger;
                     $("#VillasList").empty();
                     $("#VillasList").html(data);
                     $('.spinner').hide();

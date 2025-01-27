@@ -58,7 +58,7 @@ namespace WhiteLagoon.Web.Controllers
                 Nights = nights,
                 CheckInDate = checkInDate,
             };
-            return View(homeVM);
+            return PartialView("_VillaList", homeVM);
         }
 
 
